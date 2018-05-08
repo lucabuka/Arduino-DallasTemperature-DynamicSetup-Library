@@ -1,0 +1,84 @@
+
+{
+	"_comment":"Json config file for Home Temperature Monitor", 
+	"Base_comment":"[Base] section contains app wide parameters ", 
+	"Base":{
+		"codeName":"Temperature Monitor",
+		"version":"1.0"
+	},
+
+	"OneWire_comment":"OneWire section contains parameters related to OneWire DS18x20 devices",
+	"OneWire": {
+		"OneWireBus": [
+			{	"descr":"Room 1",
+				"pin":25,
+				"devicesNum":2,
+				"device": [
+					{
+					"descr":  "Window_1",
+					"addr": "0x28,0xFF,0x08,0xA8,0x14,0x14,0x0,0xC0",
+					"prec":9
+					},
+					{
+					"descr":  "Heater",
+					"addr": "0x28,0xFF,0xD3,0xC1,0x14,0x14,0x0,0xED",
+					"prec":9
+					}
+				]
+			}, 
+			{	"descr":"Room 2",
+				"pin":26,
+				"devicesNum":3,
+				"device": [
+					{
+					"descr":  "Window_1",
+					"addr": "0x28,0xFF,0x09,0xAC,0x14,0x14,0x0,0x03",
+					"prec":9
+					},
+					{
+					"descr":  "Window_2",
+					"addr": "0x28,0xFF,0x3B,0xCC,0x14,0x14,0x0,0x94",
+					"prec":9
+					},
+					{
+					"descr":  "Heater",
+					"addr": "0x28,0xFF,0xBB,0xAE,0x15,0x14,0x0,0x63",
+					"prec":9
+					}
+				]
+			},
+			{	"descr":"Room 3",
+				"pin":27,
+				"devicesNum":1,
+				"device": [
+					{
+					"descr":  "FakeDevice_1",
+					"addr": "0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0",
+					"prec":9
+					}
+				]
+			}, 
+			{	"descr":"Room 4",
+				"pin":15,
+				"devicesNum":2,
+				"device": [
+					{
+					"descr":  "FakeDevice_1",
+					"addr": "0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0",
+					"prec":9
+					},
+					{
+					"descr":  "FakeDevice_2",
+					"addr": "0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0",
+					"prec":9
+					}
+				]
+			} 
+
+		]
+	}
+
+
+}
+
+

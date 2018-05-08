@@ -4,7 +4,7 @@
 The main goal of this library is to DINAMICALLY define one or more 
 OneWire bus containing DS18x20 Temperature Sensor.  
 There is a Class for the BUS properties (Pin number, name, etc) and a
-a contained class for the DEVICE (Id, Descr/Location, ADDR, Precision)
+a contained Structure for the DEVICE (Id, Descr/Location, ADDR, Precision)
 
 Applications using the library will be able to DEFINE the hardware 
 configuration (Pin Used, Device Description/Location), Device ADDR, etc) 
@@ -13,17 +13,17 @@ in the setup() (as opposito to have to define it at compile-time).
 The lib includes methods to LOAD the cfg from a JSON file.
 >> You just need to create the JSON file and call locadConfig() !
 	
-So what ?  
-Using the library is possible, for example, to write an Application that:
+###So what ?  
+Using the library is possible, for example, to write an Application with the following meta-code:
 - READ cfg from JSON file at startup.
 - Communicate via WiFI to:
-- Send temperature data to MQTT a server	
-- Receive commands (ex: NEW CFG FILE: Save it and reload cfg)
+    - Send temperature data to MQTT a server	
+    - Receive commands (ex: NEW CFG FILE: Save it and reload cfg)
 
 This means your app can manage situations like:  
 - REPLACE a DEVICE on the bus (new device have a different ADDR)
 - ADD Devices on a BUS (the App can automatically start to transmit data for the new device)
-
+without have to Change-Compile-Upload the code.
 
 ## Required libs:
  - OneWire from Paul Stoffregen
@@ -61,12 +61,12 @@ You can change this values to match your needings (and board's memory constrains
 
   Each BUS is described with:  
 ```
-    "OneWireBus": [
-		{	"descr":"Room 1",
-			"pin":25,
-			"devicesNum":2,
-			"device": [...]
-        }
+"OneWireBus": [
+    {	"descr":"Room 1",
+    "pin":25,
+	"devicesNum":2,
+	"device": [...]
+    }
 ```
 - "descr": Description used to identify the singe BUS (ex: Room_1: Bus where the sensor in Room_1 are connected)  
 - "pin": hardware pin where the bus is connected   
@@ -75,7 +75,8 @@ You can change this values to match your needings (and board's memory constrains
 
 
 
-  Each DEVICE in a bus is described with:  
+
+Each DEVICE in a bus is described with:  
 ```
     {  
     "descr":  "Window 1",  
@@ -102,7 +103,7 @@ You can change this values to match your needings (and board's memory constrains
 
 
 You can find the latest version of the library at
-https://www.milesburton.com/Dallas_Temperature_Control_Library
+https://github.com/lucabuka/Arduino-DallasTemperature-DynamicSetup-Library
 
 # License
 

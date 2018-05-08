@@ -24,7 +24,7 @@ This means your app can manage situations like:
 - REPLACE a DEVICE on the bus (new device have a different ADDR)
 - ADD Devices on a BUS (the App can automatically start to transmit data for the new device)  
 
-without have to Change-Compile-Upload the code.
+with no need to Change-Compile-Upload the code.
 
 ## Required libs:
  - OneWire from Paul Stoffregen

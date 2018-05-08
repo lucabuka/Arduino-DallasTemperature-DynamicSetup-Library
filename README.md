@@ -23,6 +23,7 @@ Using the library is possible, for example, to write an Application with the fol
 This means your app can manage situations like:  
 - REPLACE a DEVICE on the bus (new device have a different ADDR)
 - ADD Devices on a BUS (the App can automatically start to transmit data for the new device)  
+
 without have to Change-Compile-Upload the code.
 
 ## Required libs:

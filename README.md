@@ -13,7 +13,7 @@ in the setup() (as opposito to have to define it at compile-time).
 The lib includes methods to LOAD the cfg from a JSON file.
 >> You just need to create the JSON file and call locadConfig() !
 	
-###So what ?  
+### So what ?  
 Using the library is possible, for example, to write an Application with the following meta-code:
 - READ cfg from JSON file at startup.
 - Communicate via WiFI to:
@@ -22,7 +22,7 @@ Using the library is possible, for example, to write an Application with the fol
 
 This means your app can manage situations like:  
 - REPLACE a DEVICE on the bus (new device have a different ADDR)
-- ADD Devices on a BUS (the App can automatically start to transmit data for the new device)
+- ADD Devices on a BUS (the App can automatically start to transmit data for the new device)  
 without have to Change-Compile-Upload the code.
 
 ## Required libs:

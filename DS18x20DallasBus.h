@@ -24,13 +24,14 @@ private:
   // Note: 
   //    ow and ds objects will be created in constructor's initialiser list
   OneWire               ow;                   // OneWire Object 
-  DallasTemperature     ds;                   // Dallas Object 
 
 public: 
+  DallasTemperature     ds;                   // Dallas Object 
   DS18x20DallasBus();
-  char                  descr[BUS_DESCR_LEN]; // Bus Id (ex: "Room_1") - Read in Setup() from cfg file
-  uint8_t               pin;                  // Hardware pin for the bus  - Read in Setup() from cfg file
-  int                   devicesNum;           // number of devices on the bus (max 4) - Calc in Setup() 
+  int							id;						 // Bus numerical Id 
+  char                  descr[BUS_DESCR_LEN]; // Bus descr (ex: "Room_1") 
+  uint8_t               pin;                  // Hardware pin for the bus  
+  int                   devicesNum;           // number of devices on the bus 
 
   struct               {
                             unsigned char   id;                      // Numeric Id
@@ -39,7 +40,7 @@ public:
                             int             prec;                    // Precision
                         } device[MAX_DEVICES_ON_BUS]  ;
 
-  void  begin(uint8_t, const char*);
+  void  begin(uint8_t, const char*, int);
   int   addDevice(unsigned char, const char*, DeviceAddress, int);
   int   addDevice(unsigned char, const char*, const char*, int);
   void  requestTemperatures();

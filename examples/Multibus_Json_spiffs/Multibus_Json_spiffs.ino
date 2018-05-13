@@ -87,7 +87,7 @@ void loop() {
 
   for (int i = 0; i < totDallaBusFound; i++) {
     Serial.println("--------------------------------------------------");
-    Serial.printf("Bus:[%s] - Requesting temperatures...", Bus[i].descr);
+    Serial.printf("Bus:[%d][%s] - Requesting temperatures...", Bus[i].id, Bus[i].descr);
     t0 = millis();
     Bus[i].requestTemperatures();
     t1 = millis();

@@ -63,12 +63,15 @@ You can change this values to match your needings (and board's memory constrains
   Each BUS is described with:  
 ```
 "OneWireBus": [
-    {	"descr":"Room 1",
+    {
+    "id": 1	
+    "descr":"Room 1",
     "pin":25,
 	"devicesNum":2,
 	"device": [...]
     }
 ```
+- "id": numerical ID to identify the single BUS (ex: 1)  
 - "descr": Description used to identify the singe BUS (ex: Room_1: Bus where the sensor in Room_1 are connected)  
 - "pin": hardware pin where the bus is connected   
 - "devicesNum": number of devices listed in the "device" array below.  

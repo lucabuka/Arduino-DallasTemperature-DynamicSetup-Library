@@ -10,7 +10,8 @@
 	"OneWire_comment":"OneWire section contains parameters related to OneWire DS18x20 devices",
 	"OneWire": {
 		"OneWireBus": [
-			{	"descr":"Room 1",
+			{	"id":1 ,
+				"descr":"Room 1",
 				"pin":25,
 				"devicesNum":2,
 				"device": [
@@ -26,7 +27,8 @@
 					}
 				]
 			}, 
-			{	"descr":"Room 2",
+			{	"id":2 ,
+				"descr":"Room 2",
 				"pin":26,
 				"devicesNum":3,
 				"device": [
@@ -47,7 +49,8 @@
 					}
 				]
 			},
-			{	"descr":"Room 3",
+			{	"id": 3, 
+				"descr":"Room 3",
 				"pin":27,
 				"devicesNum":1,
 				"device": [
@@ -58,7 +61,8 @@
 					}
 				]
 			}, 
-			{	"descr":"Room 4",
+			{	"id":4,
+				"descr":"Room 4",
 				"pin":15,
 				"devicesNum":2,
 				"device": [

@@ -6,7 +6,7 @@
 	The main goal of this library is to DINAMICALLY manage one or more 
 	OneWire bus containing DS18x20 Temperature Sensor.
 	There is a Class for the BUS properties (Pin number, name, etc) and a
-	a contained class for the DEVICE (Id, Descr/Location, ADDR, Precision)
+	a contained struct for the DEVICE (Id, Descr/Location, ADDR, Precision)
 
 	Applications using the library will be able to DEFINE the hardware 
 	configuration (Pin Used, Device Description/Location), Device ADDR, etc) 
@@ -16,7 +16,7 @@
 	-- You just need to create the JSON file and call locadConfig() !
 	
 	So what ?	
-	 Using the library is possible, for example, to write an Application that:
+	 Using the library is possible, for example, to write an App like (pseudo-code):
 		- READ cfg from JSON file at startup.
 		- Communicate via WiFI to:
 			- Send temperature data to MQTT a server	
@@ -55,10 +55,11 @@ DS18x20DallasBus::DS18x20DallasBus()
 }
 
 
-void  DS18x20DallasBus::begin(uint8_t use_pin, const char* txt){
+void  DS18x20DallasBus::begin(uint8_t use_pin, const char* txt, int numerical_id){
   pin=use_pin;
   ow.begin(use_pin);     // Assign pin to OneWire bus
   strncpy(descr, txt, DEVICE_DESCR_LEN);
+  id=numerical_id;
   ds.begin();  
 
   devicesNum=0;
@@ -66,7 +67,6 @@ void  DS18x20DallasBus::begin(uint8_t use_pin, const char* txt){
 
 
 int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, DeviceAddress addr, int prec){
-  int errcode=0;
   if(ds.isConnected(addr)) {
     ds.setResolution(addr,prec);
     // Check that ensor is correctly configured
@@ -150,8 +150,16 @@ int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, uint8_t verb) {
   int retVal = 0;
   
   // - Initialize Bus 
-  begin( Json_Bus["pin"], Json_Bus["descr"]);
+  begin( Json_Bus["pin"], Json_Bus["descr"], Json_Bus["id"]);
   
+  if(verb == 2) {
+	int nid = Json_Bus["id"];
+   const char* busDescr = Json_Bus["descr"];
+	Serial.print(" Initializing Bus Id:["); Serial.print(nid); Serial.print("] descr:[");
+	Serial.print(busDescr) ;  Serial.println("]");
+
+  }
+
   // - Add Devices found in configuration 
   for (unsigned char j = 0; j < Json_Bus["devicesNum"] ; j++) {
     int err, printOnErr=0;

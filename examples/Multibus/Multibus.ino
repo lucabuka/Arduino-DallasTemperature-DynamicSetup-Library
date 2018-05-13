@@ -50,7 +50,7 @@ void loop() {
 
   for (int i = 0; i < BUS_NUMBER; i++) {
     Serial.println("--------------------------------------------------");
-    Serial.print("Bus:[");Serial.print(Bus[i].descr);Serial.print("] - Requesting temperatures...");
+    Serial.print("Bus: Id["); Serial.print(Bus[i].id);Serial.print("]["); Serial.print(Bus[i].descr);Serial.print("] - Requesting temperatures...");
     
     t0 = millis();
     Bus[i].requestTemperatures();
@@ -84,7 +84,7 @@ int setConfiguration() {
 
   // Bus 0: HardwarePin=25, Descr="Room 1" 
   // -------------------------------------
-  Bus[0].begin( 25 , "Room 1");
+  Bus[0].begin( 25 , "Room 1", 1);
 
   // Devices on Bus 0 
   // ----------------
@@ -96,7 +96,7 @@ int setConfiguration() {
 
   // Bus 1: HardwarePin=26, Descr="Garage" 
   // ------------------------------------
-  Bus[1].begin( 26 , "Garage");
+  Bus[1].begin( 26 , "Garage", 2);
   
   // Devices on Bus 1 
   // ----------------

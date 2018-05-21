@@ -189,23 +189,22 @@ char * DS18x20DallasBus::getDeviceAddressStr(DeviceAddress addr) {
 /**************************************************************************/
 /*!
     @brief  Class: DS18x20DallasBusJson
-    @brief  loadConfig(const JsonObject& Json_Bus, uint8_t verbose)
+    @brief  loadConfig(const JsonObject& Json_Bus, Stream * debugStream)
 */
 /**************************************************************************/
-int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, uint8_t verb) {
+int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, Stream * debugStream) {
   int retVal = 0;
+ 
+  bool debug;
+  (debugStream == NULL)? debug=false : debug=true;
+
+
+
+  // if(debug) debugStream->
   
   // - Initialize Bus 
   begin( Json_Bus["pin"], Json_Bus["descr"], Json_Bus["id"]);
   
-  if(verb == 2) {
-	int nid = Json_Bus["id"];
-   const char* busDescr = Json_Bus["descr"];
-	Serial.print(" Initializing Bus Id:["); Serial.print(nid); Serial.print("] descr:[");
-	Serial.print(busDescr) ;  Serial.println("]");
-
-  }
-
   // - Add Devices found in configuration 
   for (unsigned char j = 0; j < Json_Bus["devicesNum"] ; j++) {
     int err, printOnErr=0;
@@ -227,28 +226,27 @@ int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, uint8_t verb) {
     err = addDevice(device_id, Json_Bus["device"][j]["descr"], hex_addr, Json_Bus["device"][j]["prec"],device_eps );
     if (err) {
       retVal++;
-     if(verb){
-        printOnErr=1;
-        Serial.print("  !!! ERROR=["); Serial.print(err); Serial.print("] !!! ");
-      }
+		if(debug) debugStream->print("  !!! ERROR from addDevice():["); debugStream->print(err); debugStream->print("] !!! ");
+      printOnErr=1;
     } 
-    if(verb == 2 || printOnErr) {
+    if(debug && printOnErr) {
       const char* busDescr = Json_Bus["descr"];
       const char* descr = Json_Bus["device"][j]["descr"];
       const char* addr  = Json_Bus["device"][j]["addr"];
       const char* prec  = Json_Bus["device"][j]["prec"];
       float eps  = Json_Bus["device"][j]["epsilon"];
       
-      Serial.print(" ...ADDING DEVICE: Bus["); Serial.print(busDescr) ; 
-      Serial.print("]-Device["); Serial.print(device_id) ; Serial.print("][");
-      Serial.print(descr) ; Serial.print("][");
-      Serial.print(addr) ; Serial.print("][");
-      Serial.print(prec) ; Serial.print("] Epsilon:[");
-      Serial.print(device_eps) ; Serial.println("]");
+      debugStream->print(" ...ADDING DEVICE: Bus["); debugStream->print(busDescr) ; 
+      debugStream->print("]-Device["); debugStream->print(device_id) ; debugStream->print("][");
+      debugStream->print(descr) ; debugStream->print("][");
+      debugStream->print(addr) ; debugStream->print("][");
+      debugStream->print(prec) ; debugStream->print("] Epsilon:[");
+      debugStream->print(device_eps) ; debugStream->println("]");
     }
 
   }
-
+  if(debug) dump(*debugStream);
+	
   return(retVal);
 }
 
@@ -260,8 +258,32 @@ int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, uint8_t verb) {
 */
 /**************************************************************************/
 int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus) {
-  return(loadConfig(Json_Bus,0));
+  return(loadConfig(Json_Bus, NULL));
  
 }
 
+
+
+
+
+void DS18x20DallasBus::dump(Stream &out) {
+    out.print("\nDS18x20DallasBus - Dump :\n");
+
+	 out.print("  Bus id:["); out.print(id) ; out.print("] descr:["); out.print(descr) ; out.println("]");
+	 out.print("  pin:["); out.print(pin) ; out.println("]");
+	 out.print("  devicesNum:["); out.print(devicesNum) ; out.println("]");
+
+
+    for (unsigned char j = 0; j < devicesNum ; j++) {
+		out.print("    Device id:["); out.print(device[j].id) ; 
+		out.print("] descr:["); out.print(device[j].descr) ;
+		out.print("] addr:["); out.print(getDeviceAddressStr(device[j].addr)); 
+		out.print("] prec:["); out.print(device[j].prec);
+		out.print("] epsilon:["); out.print(device[j].epsilon);
+		out.print("] t_now:["); out.print(device[j].t_now);
+		out.print("] t_prev:["); out.print(device[j].t_prev); out.println("]");
+	 }
+    out.println("");
+    return;
+}
 

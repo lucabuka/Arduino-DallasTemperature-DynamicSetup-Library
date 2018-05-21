@@ -41,6 +41,12 @@ void setup(void) {
     Serial.print("setConfiguration erro:");
     Serial.println(err);
   }
+  
+  // Display object configured in setConfiguration()
+  for (int i = 0; i < BUS_NUMBER; i++) {
+    Bus[i].dump(Serial);
+  }
+  
 }
 
 

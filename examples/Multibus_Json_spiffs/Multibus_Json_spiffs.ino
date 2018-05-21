@@ -147,10 +147,11 @@ int loadConfiguration(fs::FS &fs, const char * path, int * bus_tot_number) {
   *bus_tot_number = n_bus;
 
   for (int i = 0; i < n_bus; i++) {
-    // loadConfig(const JsonObject&, uint8_t Verbose)
+    // loadConfig(const JsonObject&,  Stream * debugStream))
     //   - JsonObj-> "root" of the JSON OBJECT containing the Bus configuration
-    //   - Verbose: Serial.print   0=silent, 1=errors only, 2:verbose
-    retVal+=Bus[i].loadConfig(root["OneWire"]["OneWireBus"][i], 2);
+    //   - debugStream): __OPTIONAL__ Print debug output to [debugStream]
+    retVal+=Bus[i].loadConfig(root["OneWire"]["OneWireBus"][i], &Serial);
+    //retVal+=Bus[i].loadConfig(root["OneWire"]["OneWireBus"][i]);  // No serial trace/debug output
   }
 
   return retVal;

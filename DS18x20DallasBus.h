@@ -62,8 +62,10 @@ public:
 
   char* getDeviceAddressStr(DeviceAddress);
   void  parseDeviceAddress(const char*, char, DeviceAddress, int,int);
-  int	  loadConfig(const JsonObject&, uint8_t); 
-  int	  loadConfig(const JsonObject&); 
+//  int	  loadConfig(const JsonObject&);  
+//  int   loadConfig(const JsonObject& , Stream *);
+
+  void  dump(Stream &); 
 };
 
 
@@ -76,8 +78,8 @@ class DS18x20DallasBusJson : public DS18x20DallasBus
 
 {
  public:
-	int loadConfig(const JsonObject& , uint8_t );
-	int loadConfig(const JsonObject& );
+  int loadConfig(const JsonObject& );
+  int   loadConfig(const JsonObject& , Stream *);
 
  private:
 };

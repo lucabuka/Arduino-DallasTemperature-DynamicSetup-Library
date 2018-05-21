@@ -14,6 +14,9 @@ DS18x20DallasBusJson	KEYWORD1
 
 addDevice			    KEYWORD2
 begin					KEYWORD2
+getDeviceIdxById        KEYWORD2
+getTempCById            KEYWORD2
+deviceGetData           KEYWORD2
 getTempC				KEYWORD2
 requestTemperatures		KEYWORD2
 getDeviceAddressStr	    KEYWORD2

@@ -3,35 +3,32 @@
     @file     DS18x20DallasBus.cpp
     @author   Lucabuka
 
-	The main goal of this library is to DINAMICALLY manage one or more 
-	OneWire bus containing DS18x20 Temperature Sensor.
-	There is a Class for the BUS properties (Pin number, name, etc) and a
-	a contained struct for the DEVICE (Id, Descr/Location, ADDR, Precision)
-
-	Applications using the library will be able to DEFINE the hardware 
-	configuration (Pin Used, Device Description/Location), Device ADDR, etc) 
-	in the setup() (as opposito to have to define it at compile-time).
-
-	The lib includes methods to LOAD the cfg from a JSON file.
-	-- You just need to create the JSON file and call locadConfig() !
+	The main goals of this library are:
 	
-	So what ?	
-	 Using the library is possible, for example, to write an App like (pseudo-code):
-		- READ cfg from JSON file at startup.
-		- Communicate via WiFI to:
-			- Send temperature data to MQTT a server	
-			- Receive commands (ex: NEW CFG FILE: Save it and reload cfg)
+	1) DINAMICALLY manage one or more OneWire bus containing DS18x20 Temperature 
+	Sensor 
+		Applications using the library will be able to DEFINE the hardware 
+		configuration (Pin Used, Device Description/Location), Device ADDR, etc) 
+		in the setup() (as opposito to have to define it at compile-time).
 
-	This means your app can manage situations like:
-		- REPLACE a DEVICE on the bus (new device have a different ADDR)
-		- ADD Devices on a BUS (the App can automatically start to transmit 
-			data for the new device)
+		The lib includes methods to LOAD the cfg from a JSON file.
+
+	2) Internally manage, for each device, "Current" and "Previous" temperatures. 
+		The getData() method will return FALSE|TRUE indicating if "Temperature 
+		has changed from last Read".  
+		Useful to write Monitor/Telemetry applications where you need to send 
+		messages to server only if temperature changes
+
 
 		
     @section  HISTORY
 
+	 v1.1 - Release Update - 2018-05-21
+		- Added suport to manage current/previous temperature read for a device
+		- Added support for device-level EPSILON 
+					  
     v1.0 - First release - 2018-05-08
-		  
+
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -43,10 +40,6 @@
 
 #include "DS18x20DallasBus.h"
 
-
-
-// https://playground.arduino.cc/Code/Hierarchy
-// Usare per fare inherit a DallasTemperature ed avere sue f() accessibili (...?...)
 
 DS18x20DallasBus::DS18x20DallasBus() 
 : ow(99), ds(&ow)  // Constructor initializer list (OneWire and DallasTemperature obj)
@@ -66,7 +59,7 @@ void  DS18x20DallasBus::begin(uint8_t use_pin, const char* txt, int numerical_id
 }
 
 
-int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, DeviceAddress addr, int prec){
+int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, DeviceAddress addr, int prec, float eps){
   if(ds.isConnected(addr)) {
     ds.setResolution(addr,prec);
     // Check that ensor is correctly configured
@@ -75,7 +68,7 @@ int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, DeviceAdd
       return(2); // Wrong precision setting or precision not set
     }
   } else {
-    return(1);
+    return(1); // Address not found on bus
   }
   if(devicesNum >= MAX_DEVICES_ON_BUS){
     return(3); // MAX DEVICE number reached - change the DEFINE and compile
@@ -86,30 +79,83 @@ int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, DeviceAdd
   strncpy(DS18x20DallasBus::device[devicesNum].descr,descr,DEVICE_DESCR_LEN);
   memcpy(DS18x20DallasBus::device[devicesNum].addr, addr, sizeof(DeviceAddress));
   DS18x20DallasBus::device[devicesNum].prec = prec;
+  DS18x20DallasBus::device[devicesNum].t_now = TEMPERATURE_UNDEFINED ;
+  DS18x20DallasBus::device[devicesNum].t_prev = TEMPERATURE_UNDEFINED ; 
+  DS18x20DallasBus::device[devicesNum].epsilon = eps;
   
   devicesNum++;
   
   return(0);
 }
 
-int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, const char* addr_str, int prec){
+int   DS18x20DallasBus::addDevice(unsigned char id, const char* descr, const char* addr_str, int prec, float eps){
   DeviceAddress hex_addr;
   parseDeviceAddress(addr_str, ',', hex_addr, 8, 16);
-  return(addDevice(id, descr, hex_addr, prec));
+  return(addDevice(id, descr, hex_addr, prec, eps));
 }
+
+int DS18x20DallasBus::getDeviceIdxById(unsigned char id){
+  for(uint8_t i=0; i<MAX_DEVICES_ON_BUS; i++){
+	if(device[i].id == id) {
+     return(i);
+    }
+  }
+  return(-1);
+}
+
+/***
+int  DS18x20DallasBus::deviceGetData(byte idx, float *T, float *Tp){
+  if(idx < 0 || idx >= devicesNum){
+    return(-1); // 
+  }
+  device[idx].t_prev = device[idx].t_now;
+  device[idx].t_now = ds.getTempC(device[idx].addr);
+
+  *T  = device[idx].t_now;
+  *Tp = device[idx].t_prev;
+  
+  return( (*T == *Tp)? 0  : 1) ; 
+}
+***/
+int  DS18x20DallasBus::deviceGetData(byte idx, float *T, float *Tp) {
+  if(idx < 0 || idx >= devicesNum){
+    return(-1); // 
+  }
+
+  device[idx].t_now = ds.getTempC(device[idx].addr);	// Get new value from device
+  *T  = device[idx].t_now;		// Set returned Value: T(now)
+  *Tp = device[idx].t_prev;	// Set returned Value: T(prev)
+  
+  int differs =  (abs(device[idx].t_now - device[idx].t_prev) <= device[idx].epsilon)? 0 : 1 ;
+
+  //  If Now-Prev differs for less than "Epsilon", NO UPDATES in "prev" --see doc !
+  if(differs) {  
+    device[idx].t_prev = device[idx].t_now; 
+  }
+  
+  return(differs) ; 
+}
+
+
+
+float DS18x20DallasBus::getTempCById(unsigned char id){
+
+  for(uint8_t i=0; i<MAX_DEVICES_ON_BUS; i++){
+	if(device[i].id == id) {
+     return(ds.getTempC(device[i].addr));
+    }
+  }
+  return(DEVICE_DISCONNECTED_C);
+}
+
 
 
 void  DS18x20DallasBus::requestTemperatures(void){
     ds.requestTemperatures();
 }
 
-
 float DS18x20DallasBus::getTempC(unsigned char * addr){
   return(ds.getTempC(addr));
-}
-
-float DS18x20DallasBus::getTempC(unsigned char id){
-  return(ds.getTempC(device[id].addr));
 }
 
 /*
@@ -165,7 +211,20 @@ int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, uint8_t verb) {
     int err, printOnErr=0;
     DeviceAddress hex_addr;
     parseDeviceAddress(Json_Bus["device"][j]["addr"], ',', hex_addr, 8, 16);
-    err = addDevice( j, Json_Bus["device"][j]["descr"], hex_addr, Json_Bus["device"][j]["prec"]);
+
+    uint8_t device_id = j;
+	 const char* id_found = Json_Bus["device"][j]["id"];
+    if(id_found != nullptr) {
+	   device_id = Json_Bus["device"][j]["id"];
+	 }
+    
+	 float device_eps = 0.0;
+	 const char* eps_found = Json_Bus["device"][j]["epsilon"];
+    if(eps_found != nullptr) {
+	   device_eps = Json_Bus["device"][j]["epsilon"];
+	 }
+
+    err = addDevice(device_id, Json_Bus["device"][j]["descr"], hex_addr, Json_Bus["device"][j]["prec"],device_eps );
     if (err) {
       retVal++;
      if(verb){
@@ -178,12 +237,14 @@ int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, uint8_t verb) {
       const char* descr = Json_Bus["device"][j]["descr"];
       const char* addr  = Json_Bus["device"][j]["addr"];
       const char* prec  = Json_Bus["device"][j]["prec"];
+      float eps  = Json_Bus["device"][j]["epsilon"];
       
       Serial.print(" ...ADDING DEVICE: Bus["); Serial.print(busDescr) ; 
-      Serial.print("]-Device["); Serial.print(j) ; Serial.print("][");
+      Serial.print("]-Device["); Serial.print(device_id) ; Serial.print("][");
       Serial.print(descr) ; Serial.print("][");
       Serial.print(addr) ; Serial.print("][");
-      Serial.print(prec) ; Serial.println("]");
+      Serial.print(prec) ; Serial.print("] Epsilon:[");
+      Serial.print(device_eps) ; Serial.println("]");
     }
 
   }

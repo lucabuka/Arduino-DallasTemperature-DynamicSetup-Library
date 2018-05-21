@@ -1,30 +1,37 @@
 # Arduino/ESP32 Library to DINAMICALLY manage one or more DallasTemperature->OneWire Bus
 
 
-The main goal of this library is to DINAMICALLY define one or more 
-OneWire bus containing DS18x20 Temperature Sensor.  
-There is a Class for the BUS properties (Pin number, name, etc) and a
-a contained Structure for the DEVICE (Id, Descr/Location, ADDR, Precision)
+The main goals of this library are:
+- DINAMICALLY define one or more DallasTemperature->OneWire bus containing DS18x20 Temperature Sensor  
+    Hardware Pin, Device ID/Description/Location, Device ADDR, etc, will be loaded from a JSON 
+    configuration file  in the setup() (as opposite to have to define them at compile-time).
+>> You just need to create the JSON file and call loadConfig() !
 
-Applications using the library will be able to DEFINE the hardware 
-configuration (Pin Used, Device Description/Location), Device ADDR, etc) 
-in the setup() (as opposito to have to define it at compile-time).
+- Internally manage, for each device, "Current" and "Previous" temperatures. 
+    The getData() method will return FALSE|TRUE indicating if "Temperature has changed from last Read".  
+    This is useful to write Monitor/Telemetry applications where you need to send messages to the 
+    server only if temperature changes
+>>    For each device is possible to SET a value defining the threshold in temperature variations you want to ignore EPSILON).    
+>>   Example:   Set EPSILON=2.0 for a device 
+>>          deviceGetData() will return FALSE (no changes) even if the CURRENT temperature 
+>>          read is 1 degree higher than the PREVIOUS read.
+>>          When the difference reach 2.0 degree, deviceGetData() will return TRUE.
 
-The lib includes methods to LOAD the cfg from a JSON file.
->> You just need to create the JSON file and call locadConfig() !
 	
+
 ### So what ?  
 Using the library is possible, for example, to write an Application with the following meta-code:
 - READ cfg from JSON file at startup.
 - Communicate via WiFI to:
-    - Send temperature data to MQTT a server	
-    - Receive commands (ex: NEW CFG FILE: Save it and reload cfg)
+    - Send _ON_CHANGE_ temperature data to a MQTT server	
+    - Receive commands (ex: Receive a new CFG JSON file => Save it => reload cfg)
 
-This means your app can manage situations like:  
-- REPLACE a DEVICE on the bus (new device have a different ADDR)
-- ADD Devices on a BUS (the App can automatically start to transmit data for the new device)  
+This means your app _ with no need to Change-Compile-Upload the code_ can manage situations like:  
+- REPLACE/ADD DEVICES (new device have a different ADDR)
+- Change setting for exixting devices (Precision, Epsilon)
+- Change settings for the Application (Delay between temperature checks, etc)
 
-with no need to Change-Compile-Upload the code.
+
 
 ## Required libs:
  - OneWire from Paul Stoffregen
@@ -83,13 +90,19 @@ You can change this values to match your needings (and board's memory constrains
 Each DEVICE in a bus is described with:  
 ```
     {  
+    "id":3      
     "descr":  "Window 1",  
     "addr": "0x28,0xFF,0x08,0xA8,0x14,0x14,0x0,0xC0",  
-    "prec":9  
+    "prec":9,  
+    "epsilon": 0.5
     }  
 ```
+- "id": __OPTIONAL_ Numerical ID of the Sensor (thermometer)
 - "descr": identify the single Sensor  
 - "prec": device precision requested (9-12)  
+- "epsilon": __OPTIONAL_ Ignore variation in sensor read smaller than EPSLON
+            if [abs("now"-"prev") < epsilon] -> getData() returns NO CHANGE   
+
 >>    If you don't know the addresses for a device, run one of the   
 >>    "scan" examples that comes with OneWire/Dallas libs  
 

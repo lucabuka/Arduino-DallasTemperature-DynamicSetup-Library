@@ -1,5 +1,12 @@
 /**************************************************************
 
+
+  Meta-code of this example:
+    - Configure the hardware loading a JSON file in the SPIFFS file system         
+    - Loop trough the configured Buses
+        - RequestTemperature() on the Bus (every device)
+        - Show the temperatures and "timing" for each Device
+
   Hardware Setup:
     - ESP32 Board ONLY -- Uses SPIFFS File System
       - It can be ported to Arduino removing dependencies from SPIFFS
@@ -9,16 +16,10 @@
         2 on on Bus_0
         3 on on Bus_1
 
-  Application meta-code:
-    - Configure the hardware loading a JSON file in the SPIFFS file system         
-    - Loop trough the configured Buses
-        - RequestTemperature() on the Bus (every device)
-        - Show the temperatures and "timing" for each Device
-
   TO BE ABLE TO RUN THIS EXAMPLE: -> SPIFFS, ./data/appConfig.json
   ----------------------------------------------------------------
-  This example READ the cfg for the buses from a JSON File
-      ./data//appConfig.json)
+  This example READ buses cfg from a JSON File
+      ./data/appConfig.json
     
   !!! You HAVE TO MODIFY the Json file with your specific 
   !!! hardware configuration (Pin used, Devices ADDR, etc), 
@@ -97,16 +98,12 @@ void loop() {
 
       Serial.printf("\tdevice[%d]:[%s] ", Bus[i].device[j].id, Bus[i].device[j].descr );
       t0 = millis();
-
-      float tempC = Bus[i].getTempC(Bus[i].device[j].addr);
-
-      if (tempC == -127.00) {
-        Serial.print("Error getting temperature");
-      } else {
-        Serial.print(tempC);
-      }
+      float Tnow=0,Tprev=0;   
+      int hasChanged=Bus[i].deviceGetData(j, &Tnow, &Tprev );
+      Serial.printf("Tnow:[%f] Tprev:[%f] - hasChanged[%d] - Using Epsilon:[%f]",Tnow, Tprev, hasChanged, Bus[i].device[j].epsilon  );   
+      
       t1 = millis();
-      Serial.printf(" - getTempC() [%ld] msec\n", t1 - t0);
+      Serial.printf(" - getData() [%ld] msec\n", t1 - t0);
     }
   }
 

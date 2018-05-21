@@ -1,6 +1,6 @@
 
 {
-	"_comment":"Json config file for Home Temperature Monitor", 
+	"_comment":"Json config file for Temperature Monitor", 
 	"Base_comment":"[Base] section contains app wide parameters ", 
 	"Base":{
 		"codeName":"Temperature Monitor",
@@ -16,14 +16,18 @@
 				"devicesNum":2,
 				"device": [
 					{
+					"id": 6,
 					"descr":  "Window_1",
 					"addr": "0x28,0xFF,0x08,0xA8,0x14,0x14,0x0,0xC0",
-					"prec":9
+					"prec":9,
+					"epsilon":1.5
 					},
 					{
+					"id": 8,
 					"descr":  "Heater",
 					"addr": "0x28,0xFF,0xD3,0xC1,0x14,0x14,0x0,0xED",
-					"prec":9
+					"prec":9,
+					"epsilon":1.5
 					}
 				]
 			}, 
@@ -33,19 +37,25 @@
 				"devicesNum":3,
 				"device": [
 					{
+					"id": 6,
 					"descr":  "Window_1",
 					"addr": "0x28,0xFF,0x09,0xAC,0x14,0x14,0x0,0x03",
-					"prec":9
+					"prec":9,
+					"epsilon":1.0
 					},
 					{
+					"id": 7,
 					"descr":  "Window_2",
 					"addr": "0x28,0xFF,0x3B,0xCC,0x14,0x14,0x0,0x94",
-					"prec":9
+					"prec":9,
+					"epsilon":1.0
 					},
 					{
+					"id": 8,
 					"descr":  "Heater",
 					"addr": "0x28,0xFF,0xBB,0xAE,0x15,0x14,0x0,0x63",
-					"prec":9
+					"prec":9,
+					"epsilon":1.0
 					}
 				]
 			},
@@ -67,12 +77,14 @@
 				"devicesNum":2,
 				"device": [
 					{
-					"descr":  "FakeDevice_1",
+					"id": 6,
+					"descr":  "FakeDevice_1 id=6",
 					"addr": "0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0",
 					"prec":9
 					},
 					{
-					"descr":  "FakeDevice_2",
+					"id": 7,
+					"descr":  "FakeDevice_2 id=7",
 					"addr": "0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0",
 					"prec":9
 					}

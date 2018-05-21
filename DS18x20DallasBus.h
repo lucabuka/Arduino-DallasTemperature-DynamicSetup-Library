@@ -17,6 +17,8 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+#define TEMPERATURE_UNDEFINED	-200.0
+
 class DS18x20DallasBus {
 
 
@@ -34,22 +36,34 @@ public:
   int                   devicesNum;           // number of devices on the bus 
 
   struct               {
-                            unsigned char   id;                      // Numeric Id
-                            char            descr[DEVICE_DESCR_LEN]; // Descr (ex: "WaterIn" - Temperature of the Water Inlet) 
-                            DeviceAddress   addr;                    // Address
-                            int             prec;                    // Precision
-                        } device[MAX_DEVICES_ON_BUS]  ;
+                            unsigned char   id;             // Numeric Id
+                            char            descr[DEVICE_DESCR_LEN]; // Descr (ex: "WaterIn") 
+                            DeviceAddress   addr;           // Address
+                            int             prec;           // Precision
+									 float           t_now;				// Last temperature recorded
+									 float           t_prev;			// Previous temperature recorded
+									 float           epsilon;			
+														// Used to return "Temperature has changed from last getData()? 0|1"
+														// if [abs("now"-"prev") < epsilon] => getData() returns NO CHANGE   
+                        } device[MAX_DEVICES_ON_BUS]  ;		
 
   void  begin(uint8_t, const char*, int);
-  int   addDevice(unsigned char, const char*, DeviceAddress, int);
-  int   addDevice(unsigned char, const char*, const char*, int);
-  void  requestTemperatures();
+  int   addDevice(unsigned char, const char*, DeviceAddress, int, float);
+  int   addDevice(unsigned char, const char*, const char*, int, float);
 
+  int   getDeviceIdxById(unsigned char);
+
+  int   deviceGetData(byte idx, float *T, float *Tp);	
+
+  float getTempCById(unsigned char id);
+
+  void  requestTemperatures();
   float getTempC(unsigned char * addr);
-  float getTempC(unsigned char);
 
   char* getDeviceAddressStr(DeviceAddress);
   void  parseDeviceAddress(const char*, char, DeviceAddress, int,int);
+  int	  loadConfig(const JsonObject&, uint8_t); 
+  int	  loadConfig(const JsonObject&); 
 };
 
 

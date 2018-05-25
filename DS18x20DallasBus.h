@@ -26,6 +26,9 @@ private:
   // Note: 
   //    ow and ds objects will be created in constructor's initialiser list
   OneWire               ow;                   // OneWire Object 
+  Stream *  trcStream; 
+  Stream *  dbgStream;
+
 
 public: 
   DallasTemperature     ds;                   // Dallas Object 
@@ -62,6 +65,12 @@ public:
 
   char* getDeviceAddressStr(DeviceAddress);
   void  parseDeviceAddress(const char*, char, DeviceAddress, int,int);
+  void      setDebugStream(Stream &);
+  void      setTraceStream(Stream &);
+  Stream *  getTraceStream(void);
+  Stream *  getDebugStream(void);
+  bool      getTraceState(void);
+  bool      getDebugState(void);
 //  int	  loadConfig(const JsonObject&);  
 //  int   loadConfig(const JsonObject& , Stream *);
 
@@ -79,10 +88,8 @@ class DS18x20DallasBusJson : public DS18x20DallasBus
 {
  public:
   int loadConfig(const JsonObject& );
-  int loadConfig(const JsonObject& , Stream &);
 
  private:
-  int   _loadConfig(const JsonObject& , Stream *);
 
 };
 

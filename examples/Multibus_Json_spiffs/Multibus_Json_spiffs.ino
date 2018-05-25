@@ -147,11 +147,9 @@ int loadConfiguration(fs::FS &fs, const char * path, int * bus_tot_number) {
   *bus_tot_number = n_bus;
 
   for (int i = 0; i < n_bus; i++) {
-    // loadConfig(const JsonObject&,  Stream & debugStream))
-    //   - JsonObj-> "root" of the JSON OBJECT containing the Bus configuration
-    //   - debugStream): __OPTIONAL__ Print debug output to [debugStream]
-    retVal+=Bus[i].loadConfig(root["OneWire"]["OneWireBus"][i], Serial);
-    //retVal+=Bus[i].loadConfig(root["OneWire"]["OneWireBus"][i]);  // No serial trace/debug output
+    Bus[i].setDebugStream(Serial); // activate debug output (error messages)
+    Bus[i].setTraceStream(Serial); // activate Trace output (trace activity and internal status messages)    
+    retVal+=Bus[i].loadConfig(root["OneWire"]["OneWireBus"][i]);
   }
 
   return retVal;

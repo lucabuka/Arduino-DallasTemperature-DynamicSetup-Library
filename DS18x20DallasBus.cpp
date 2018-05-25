@@ -44,7 +44,8 @@
 DS18x20DallasBus::DS18x20DallasBus() 
 : ow(99), ds(&ow)  // Constructor initializer list (OneWire and DallasTemperature obj)
 {
-  ; // nothing else to do
+  this->trcStream=NULL;
+  this->dbgStream=NULL;
 }
 
 
@@ -185,23 +186,71 @@ char * DS18x20DallasBus::getDeviceAddressStr(DeviceAddress addr) {
 }
 
 
+void DS18x20DallasBus::setTraceStream(Stream & outStream){
+  this->trcStream = &outStream; 
+}
+
+void DS18x20DallasBus::setDebugStream(Stream & outStream){
+  this->dbgStream = &outStream; 
+}
+
+Stream * DS18x20DallasBus::getDebugStream(void){
+  return(this->dbgStream);
+}
+
+Stream * DS18x20DallasBus::getTraceStream(void){
+  return(this->trcStream);
+}
+
+bool DS18x20DallasBus::getDebugState(void){
+  return((this->dbgStream != NULL) ? true : false);
+}
+
+bool DS18x20DallasBus::getTraceState(void){
+  return((this->trcStream != NULL) ? true : false);
+}
+
+
+void DS18x20DallasBus::dump(Stream &out) {
+    out.print("\nDS18x20DallasBus - Dump :\n");
+
+	 out.print("  Bus id:["); out.print(id) ; out.print("] descr:["); out.print(descr) ; out.println("]");
+	 out.print("  pin:["); out.print(pin) ; out.println("]");
+	 out.print("  devicesNum:["); out.print(devicesNum) ; out.println("]");
+
+
+    for (unsigned char j = 0; j < devicesNum ; j++) {
+		out.print("    Device id:["); out.print(device[j].id) ; 
+		out.print("] descr:["); out.print(device[j].descr) ;
+		out.print("] addr:["); out.print(getDeviceAddressStr(device[j].addr)); 
+		out.print("] prec:["); out.print(device[j].prec);
+		out.print("] epsilon:["); out.print(device[j].epsilon);
+		out.print("] t_now:["); out.print(device[j].t_now);
+		out.print("] t_prev:["); out.print(device[j].t_prev); out.println("]");
+	 }
+    out.println("");
+    return;
+}
+
+
+
+
+
 
 /**************************************************************************/
 /*!
     @brief  Class: DS18x20DallasBusJson
-    @brief  loadConfig(const JsonObject& Json_Bus, Stream * debugStream)
+    @brief  loadConfig(const JsonObject& Json_Bus)
 */
 /**************************************************************************/
-int DS18x20DallasBusJson::_loadConfig(const JsonObject& Json_Bus, Stream * debugStream) {
+int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus) {
   int retVal = 0;
- 
-  bool debug;
-  (debugStream == NULL)? debug=false : debug=true;
+  bool debug=getDebugState();
+  bool trace=getTraceState(); 
+  Stream * debugStream = getDebugStream();
+  Stream * traceStream = getTraceStream();
 
 
-
-  // if(debug) debugStream->
-  
   // - Initialize Bus 
   begin( Json_Bus["pin"], Json_Bus["descr"], Json_Bus["id"]);
   
@@ -229,7 +278,9 @@ int DS18x20DallasBusJson::_loadConfig(const JsonObject& Json_Bus, Stream * debug
 		if(debug) debugStream->print("  !!! ERROR from addDevice():["); debugStream->print(err); debugStream->print("] !!! ");
       printOnErr=1;
     } 
-    if(debug && printOnErr) {
+    if((debug && printOnErr) || trace) {
+		if( !printOnErr) debugStream = getTraceStream();
+
       const char* busDescr = Json_Bus["descr"];
       const char* descr = Json_Bus["device"][j]["descr"];
       const char* addr  = Json_Bus["device"][j]["addr"];
@@ -245,49 +296,8 @@ int DS18x20DallasBusJson::_loadConfig(const JsonObject& Json_Bus, Stream * debug
     }
 
   }
-  if(debug) dump(*debugStream);
+  if(trace) dump(*traceStream);
 	
   return(retVal);
-}
-
-
-/**************************************************************************/
-/*!
-    @brief  Class: DS18x20DallasBusJson
-    @brief  loadConfig(const JsonObject& Json_Bus)
-*/
-/**************************************************************************/
-int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, Stream & debugStream) {
-  return(_loadConfig(Json_Bus, &debugStream));
- 
-}
-
-int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus) {
-  return(_loadConfig(Json_Bus, NULL));
- 
-}
-
-
-
-
-void DS18x20DallasBus::dump(Stream &out) {
-    out.print("\nDS18x20DallasBus - Dump :\n");
-
-	 out.print("  Bus id:["); out.print(id) ; out.print("] descr:["); out.print(descr) ; out.println("]");
-	 out.print("  pin:["); out.print(pin) ; out.println("]");
-	 out.print("  devicesNum:["); out.print(devicesNum) ; out.println("]");
-
-
-    for (unsigned char j = 0; j < devicesNum ; j++) {
-		out.print("    Device id:["); out.print(device[j].id) ; 
-		out.print("] descr:["); out.print(device[j].descr) ;
-		out.print("] addr:["); out.print(getDeviceAddressStr(device[j].addr)); 
-		out.print("] prec:["); out.print(device[j].prec);
-		out.print("] epsilon:["); out.print(device[j].epsilon);
-		out.print("] t_now:["); out.print(device[j].t_now);
-		out.print("] t_prev:["); out.print(device[j].t_prev); out.println("]");
-	 }
-    out.println("");
-    return;
 }
 

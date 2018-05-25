@@ -79,9 +79,11 @@ class DS18x20DallasBusJson : public DS18x20DallasBus
 {
  public:
   int loadConfig(const JsonObject& );
-  int   loadConfig(const JsonObject& , Stream *);
+  int loadConfig(const JsonObject& , Stream &);
 
  private:
+  int   _loadConfig(const JsonObject& , Stream *);
+
 };
 
 #endif

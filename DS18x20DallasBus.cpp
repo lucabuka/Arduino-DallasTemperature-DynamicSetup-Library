@@ -192,7 +192,7 @@ char * DS18x20DallasBus::getDeviceAddressStr(DeviceAddress addr) {
     @brief  loadConfig(const JsonObject& Json_Bus, Stream * debugStream)
 */
 /**************************************************************************/
-int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, Stream * debugStream) {
+int DS18x20DallasBusJson::_loadConfig(const JsonObject& Json_Bus, Stream * debugStream) {
   int retVal = 0;
  
   bool debug;
@@ -257,11 +257,15 @@ int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, Stream * debugS
     @brief  loadConfig(const JsonObject& Json_Bus)
 */
 /**************************************************************************/
-int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus) {
-  return(loadConfig(Json_Bus, NULL));
+int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus, Stream & debugStream) {
+  return(_loadConfig(Json_Bus, &debugStream));
  
 }
 
+int DS18x20DallasBusJson::loadConfig(const JsonObject& Json_Bus) {
+  return(_loadConfig(Json_Bus, NULL));
+ 
+}
 
 
 

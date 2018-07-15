@@ -5,23 +5,23 @@
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-DS18x20DallasBus		KEYWORD1
+DS18x20DallasBus	KEYWORD1
 DS18x20DallasBusJson	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-addDevice			    KEYWORD2
-begin					KEYWORD2
-getDeviceIdxById        KEYWORD2
-getTempCById            KEYWORD2
-deviceGetData           KEYWORD2
-getTempC				KEYWORD2
-requestTemperatures		KEYWORD2
-getDeviceAddressStr	    KEYWORD2
-parseDeviceAddress	    KEYWORD2
-loadConfig		        KEYWORD2
+addDevice	KEYWORD2
+begin	KEYWORD2
+getDeviceIdxById	KEYWORD2
+getTempCById	KEYWORD2
+deviceGetData	KEYWORD2
+getTempC	KEYWORD2
+requestTemperatures	KEYWORD2
+getDeviceAddressStr	KEYWORD2
+parseDeviceAddress	KEYWORD2
+loadConfig	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
